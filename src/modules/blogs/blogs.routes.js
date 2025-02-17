@@ -2,8 +2,6 @@ import { Router } from "express";
 import * as BlogCon from "./blogs.controller.js"
 import { multerCloudFunction } from "../../services/multerCloud.js";
 import { allowedExtensions } from "../../utilities/allowedExtensions.js";
-import { isAuth } from "../../middleware/isAuth.js";
-import { addBlogpoints } from "./blogsEndPoints.js";
 
 const router = Router()
 
@@ -20,7 +18,7 @@ router.get("/getLastThree",BlogCon.getLastThreeBlogs)
 router.get("/ar",BlogCon.getAllBlogsAR)
 router.get("/en",BlogCon.getAllBlogsEN)
 
-router.get("/getLastThreeBlogsforDashboard",BlogCon.getLastThreeBlogsforDashboard)
+router.get("/getAllBlogsForDashboard",BlogCon.getAllBlogsForDashboard)
 
 
 export default router
