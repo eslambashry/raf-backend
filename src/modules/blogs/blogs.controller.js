@@ -235,10 +235,11 @@ export const getAllBlogsForDashboard = async(req,res,next) => {
 
   
   const blogs = await Blog.find()
-  
+
   if(!blogs) return next(new Error("No Blogs Founded",{cause:404}))
   
     const num = blogs.length
     res.status(201).json({message:`Blogs Number : ${num}`,blogs})
 }
+
 
