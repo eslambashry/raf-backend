@@ -8,6 +8,7 @@ export const createcategory = async (req, res, next) => {
    try {
 console.log(req.body);
       // const unitData = JSON.parse(req.body)
+      console.log(req.body);
       
       const { title, description, location, lang } = req.body;
       const latitude = parseFloat(req.body.latitude);
@@ -264,3 +265,26 @@ export const getLastThreeCategoryForDashboard = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const getAllCategoryARForDashboard = async(req,res,next) => {
+ 
+  
+  const category = await categoryModel.find({lang:"ar"})
+  
+  if(!category) return next(new Error("No category Founded",{cause:404}))
+  
+    const num = category.length
+    res.status(201).json({message:`category Number : ${num}`,category})
+}
+
+export const getAllCategoryENForDashboard = async(req,res,next) => {
+ 
+  
+  const category = await categoryModel.find({lang:"en"})
+  
+  if(!category) return next(new Error("No category Founded",{cause:404}))
+  
+    const num = category.length
+    res.status(201).json({message:`category Number : ${num}`,category})
+}
