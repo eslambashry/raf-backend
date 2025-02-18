@@ -45,13 +45,13 @@ export const sendVerificationEmail = async (toEmail, verificationCode) => {
     port: process.env.SMTP_PORT,
     secure: false, // Use TLS
     auth: {
-      user:"yussef.ali.it@gmail.com",
-      pass:"sxuo ejwl xeha fpvj"
+      user:"yussefali424@gmail.com",
+      pass:"rtyo vnqp ovdm sqhx"
     },
   });
 
   const mailOptions = {
-    from: `"Tasis Al Bina" <${process.env.SMTP_USER}>`,
+    from: `"Raf " <${process.env.SMTP_USER}>`,
     to: toEmail,
     subject: 'Reset Your Bin Code',
     html: `
