@@ -53,19 +53,19 @@ export const sendVerificationEmail = async (toEmail, verificationCode) => {
   const mailOptions = {
     from: `"Raf " <${process.env.SMTP_USER}>`,
     to: toEmail,
-    subject: 'Reset Your Bin Code',
+    subject: 'Bin Code',
     html: `
-        <div style="background-color: #20284d; padding: 20px; border-radius: 10px; text-align: center;">
-            <h2 style="color: #aa9554;">Reset Your Bin Code</h2>
+        <div style="background-color: #35232F; padding: 20px; border-radius: 10px; text-align: center;">
+            <h2 style="color: #C48765;">Reset Your Bin Code</h2>
             <p style="color: white; font-size: 16px;">Hello,</p>
             <p style="color: white; font-size: 16px;">
                 You requested to reset your bin code. Use the verification code below to proceed:
             </p>
-            <h3 style="background: #aa9554; color: #20284d; display: inline-block; padding: 10px 20px; border-radius: 8px;">
+            <h3 style="background: #C48765; color: #35232F; display: inline-block; padding: 10px 20px; border-radius: 8px;">
                 ${verificationCode}
             </h3>
 
-            <p style="color: #aa9554; font-size: 14px;">Tasis Al Bina Team</p>
+            <p style="color: #C48765; font-size: 14px;">Tasis Al Bina Team</p>
         </div>
     `,
 };
