@@ -13,7 +13,8 @@ const userSchema = new Schema({
         type:String,
         required: true,
     },
-
+    verificationCode: Number,
+    codeExpiresAt: Date,
     lastName:{
         type:String,
         required: true,
