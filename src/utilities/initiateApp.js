@@ -11,7 +11,7 @@ export const initiateApp = (app, express) => {
 
     // Configure CORS to allow requests from your frontend origin
     app.use(cors({
-        origin: ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003'], // Allow requests from this origin
+        // origin: ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003'], // Allow requests from this origin
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'], // Allowed HTTP methods
         allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
         credentials: true, // Allow cookies and credentials
@@ -47,7 +47,7 @@ export const initiateApp = (app, express) => {
     // Socket.IO setup
    io = new Server(serverApp, {
         cors: {
-            origin: ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003'], // Allow Socket.IO connections from this origin
+            // origin: ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003'], // Allow Socket.IO connections from this origin
             methods: ['GET', 'POST'], // Allowed HTTP methods for Socket.IO
             credentials: true, // Allow credentials
         },

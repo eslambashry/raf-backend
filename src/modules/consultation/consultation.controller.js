@@ -170,8 +170,8 @@ export const getLastThreeConsultes = async (req, res, next) => {
 
   export const getAllLastOneHour = async (req, res, next) => {
     try {
-    //   const oneHourAgo = new Date();
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const oneHourAgo = new Date();
+    //   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
       oneHourAgo.setHours(oneHourAgo.getHours() - 1);
 
       const consultationData = await consultationModel.find({ createdAt: { $gte: oneHourAgo } });
