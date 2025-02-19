@@ -45,12 +45,6 @@ export const signUp = async(req,res,next) => {
     res.status(201).json({message:'User Added successfully', saveUser})
 }  // ! for admin crate one account and will delete that api 
 
-
-
-
-
-
-
 import pkg from 'bcrypt'
 import { decode } from "punycode";
 import { tempVerificationModel } from "../../../database/models/tempVerification.model.js";
@@ -92,8 +86,6 @@ export const login = async(req,res,next) => {
      )
      res.status(200).json({message: 'Login Success', userUpdated})
 }
-
-
 
  export const forgetPassword = async(req,res,next) => {
 
@@ -280,7 +272,7 @@ export const sendEmailBinCodeToAdd = async (req, res, next) => {
   await tempVerificationModel.create({
       email,
       code: verificationCode,
-      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+      // expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
   });
 
   await sendVerificationEmail(email, verificationCode);
