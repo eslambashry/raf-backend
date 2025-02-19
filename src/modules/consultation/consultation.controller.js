@@ -171,13 +171,14 @@ export const getLastThreeConsultes = async (req, res, next) => {
   export const getAllLastOneHour = async (req, res, next) => {
     try {
       const oneHourAgo = new Date();
+    //   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
       oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-  
+
       const consultationData = await consultationModel.find({ createdAt: { $gte: oneHourAgo } });
   
       // console.log(consultationData.length);
       
-      if (consultationData.length === 0) return next(new Error('No consultations found in the last hour', { cause: 404 }));
+      if (consultationData.length === 0) return res.status(404).json({ message: "No emails from the last hour" });
   
       if (consultationData.length > 0) {
         io.emit("last-one-hour-consoltation", consultationData)
