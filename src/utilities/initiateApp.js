@@ -11,7 +11,7 @@ export const initiateApp = (app, express) => {
 
     // Configure CORS to allow requests from your frontend origin
     app.use(cors({
-        origin: ['https://www.raf-advanced.sa/ar','https://www.raf-advanced.sa/en','https://dash-board.raf-advanced.sa/'], // Allow requests from this origin
+        // origin: ['https://www.raf-advanced.sa/ar','https://www.raf-advanced.sa/en','https://dash-board.raf-advanced.sa/'], // Allow requests from this origin
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'], // Allowed HTTP methods
         allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
         credentials: true, // Allow cookies and credentials
