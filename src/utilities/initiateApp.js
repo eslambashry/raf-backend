@@ -48,6 +48,7 @@ export const initiateApp = (app, express) => {
    io = new Server(serverApp, {
         cors: {
             // origin: ['https://dash-board.raf-advanced.sa','https://www.raf-advanced.sa/ar','https://www.raf-advanced.sa/en'], // Allow Socket.IO connections from this origin
+            // origin: ['https://dash-board.raf-advanced.sa','https://www.raf-advanced.sa/ar','https://www.raf-advanced.sa/en'], // Allow Socket.IO connections from this origin
             methods: ['GET', 'POST'], // Allowed HTTP methods for Socket.IO
             credentials: true, // Allow credentials
         },
