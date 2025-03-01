@@ -51,7 +51,8 @@ import { tempVerificationModel } from "../../../database/models/tempVerification
 export const login = async(req,res,next) => {
     const {email,password} = req.body
 
-
+    console.log(req.body);
+    
     const userExsist = await userModel.findOne({email})
     if(!userExsist){
         return res.status(400).json({message: "in correct email"})
@@ -84,6 +85,8 @@ export const login = async(req,res,next) => {
         },
         {new: true},
      )
+     console.log(userUpdated);
+     
      res.status(200).json({message: 'Login Success', userUpdated})
 }
 
