@@ -295,7 +295,7 @@ export const addUser = async (req, res, next) => {
   const storedVerification = await tempVerificationModel.findOne({ 
       email,
       code: verificationCode,
-      expiresAt: { $gt: Date.now() }
+      // expiresAt: { $gt: Date.now() }
   });
 
   if (!storedVerification) {
