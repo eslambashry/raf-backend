@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as AuthCon from './auth.controller.js'
+import * as wishCon from './wishList.controller.js'
 import { isAuth } from "../../middleware/isAuth.js";
 import { addUsersEndpoints } from "./authEndpoints.js";
 
@@ -31,6 +32,19 @@ router.get('/users',AuthCon.getAllUser)
 
 
    router.get('/usersCount',AuthCon.usersCount) 
+   router.get('/getRafUser',AuthCon.getAllRafUsers) 
+
+   router.post('/forgetmypassword',AuthCon.forgetmyPassword)
+
+   router.post('/resetmypassword/:token',AuthCon.resetmyPassword)
+
+   router.get('/user/profile',isAuth(addUsersEndpoints.ADD_WHSHLIST),AuthCon.getUserProfile) 
+
+   // ^ ========================== Wishlist ================================================
+   router.post('/wishlist',isAuth(addUsersEndpoints.ADD_WHSHLIST),wishCon.withListUsers)
+   router.get('/wishlist',isAuth(addUsersEndpoints.ADD_WHSHLIST),wishCon.getWithListUsers)
+   router.patch('/wishlist',isAuth(addUsersEndpoints.DELETE_WHSHLIST),wishCon.deleteWithListUsers)
+   // ^ ========================== Wishlist ================================================
 
 export default router
 

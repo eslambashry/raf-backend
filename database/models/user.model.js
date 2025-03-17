@@ -34,8 +34,9 @@ const userSchema = new Schema({
     role:{
         type:String,
         required:true,
-        enum:[systemRoles.ADMIN,systemRoles.SUPER_ADMIN]
-    },
+        default:systemRoles.USER,
+        enum:[systemRoles.ADMIN,systemRoles.SUPER_ADMIN,systemRoles.USER],
+    },  
 
      phoneNumber:{
         type:String,
@@ -51,7 +52,13 @@ const userSchema = new Schema({
         default:'offline',
         enum:['offline','online'],
     },
-    
+    lastLogin:{
+        type:Date,
+    },
+    wishlist:[{
+        type:Schema.Types.ObjectId,
+        ref:'category'
+    }],
     token:String,
     forgetCode:String,
 },{timestamps:true})

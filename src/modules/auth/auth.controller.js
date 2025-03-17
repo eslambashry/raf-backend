@@ -1,7 +1,7 @@
 import { userModel } from "../../../database/models/user.model.js"
 import { generateToken, verifyToken } from "../../utilities/tokenFunction.js"
 import crypto from 'crypto';
-import { sendVerificationEmail} from "../../services/sendEmailService.js"
+import { sendVerificationEmail,sendEmailService} from "../../services/sendEmailService.js"
 import { nanoid } from "nanoid"
 import { emailTemplate } from "../../utilities/emailTemplate.js";
 
@@ -40,30 +40,41 @@ export const signUp = async(req,res,next) => {
         password,
         phoneNumber,
         role
-    })
-    const saveUser = await user.save()
-    res.status(201).json({message:'User Added successfully', saveUser})
-}  // ! for admin crate one account and will delete that api 
-
-import pkg from 'bcrypt'
+      })
+      const saveUser = await user.save()
+      res.status(201).json({message:'User Added successfully', saveUser})
+    }  // ! for admin crate one account and will delete that api 
+    
 import { decode } from "punycode";
+import pkg from 'bcrypt'
 import { tempVerificationModel } from "../../../database/models/tempVerification.model.js";
 export const login = async(req,res,next) => {
     const {email,password} = req.body
 
-    console.log(req.body);
-    
+
     const userExsist = await userModel.findOne({email})
+
     if(!userExsist){
         return res.status(400).json({message: "in correct email"})
     }
 
     
-    const passwordExsist = pkg.compareSync(password,userExsist.password)
-    if(!passwordExsist){
+    // const passwordExsist = pkg.compareSync(password,userExsist.password)
+    const passwordExsist = pkg.compareSync(password, userExsist.password);
+    console.log(passwordExsist);
+    console.log('Input password:', password);
+    console.log('Stored hash:', userExsist.password);
+    console.log('Password match:', passwordExsist);
+
+    // console.log(userExsist.password);
+    console.log(passwordExsist);
+    
+    
+    if(passwordExsist == false){
         return res.status(400).json({message: "in correct password"})
     }
 
+    
     const token = generateToken({
         payload:{
             email,
@@ -81,11 +92,12 @@ export const login = async(req,res,next) => {
         
         {
             token,
-            status: 'online'
+            status: 'online',
+            lastLogin: Date.now(),
         },
         {new: true},
      )
-     console.log(userUpdated);
+     console.log(updateUser);
      
      res.status(200).json({message: 'Login Success', userUpdated})
 }
@@ -142,109 +154,6 @@ export const login = async(req,res,next) => {
     )
     return res.status(200).json({message:"password changed",userupdete})
 }
-
-// Option 1: Add the verification code to the user model temporarily
-export const sendEmailBinCode = async (req, res, next) => {
-  const { email } = req.body;
-  const verificationCode = crypto.randomInt(100000, 999999);
-  
-  const user = await userModel.findOne({email});
-  if(!user) return next(new Error('Email Not Found',{cause:404}));
-
-  // Store the code and expiry in the user document
-  user.verificationCode = verificationCode;
-  user.codeExpiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
-  await user.save();
-
-  console.log("reset code: ",verificationCode);
-  
-  try {
-      await sendVerificationEmail(email, verificationCode);
-      res.status(200).json({ message: 'Verification code sent successfully' });
-  } catch (error) {
-      console.error('Error sending email:', error);
-      res.status(500).json({ error: 'Failed to send verification code' });
-  }
-};
-
-export const resetPassword = async(req,res,next) => {
-  const {verificationCode, newPassword, email} = req.body;
-  console.log(verificationCode);
-  
-  const user = await userModel.findOne({email});
-  if(!user) {
-      return res.status(400).json({message: "User not found"});
-  }
-
-  if (!user.verificationCode || user.verificationCode !== parseInt(verificationCode)) {
-      return res.status(400).json({ error: 'Invalid verification code' });
-  }
-  console.log(user.verificationCode);
-  
-
-  if (user.codeExpiresAt < Date.now()) {
-      return res.status(400).json({ error: 'Verification code expired' });
-  }
-
-  user.password = newPassword;
-  user.verificationCode = null;
-  user.codeExpiresAt = null;
-
-  const updatedUser = await user.save();
-  res.status(200).json({message: "Password reset successfully", updatedUser});
-};
-
-
-
-
-export const logout = async (req, res, next) => {
-  try {
-    const { token } = req.body;
-    if (!token) {
-      return res.status(400).json({ message: "Token is required" });
-    }
-
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.SIGN_IN_TOKEN_SECRET);
-    } catch (error) {
-      if (error.name === "TokenExpiredError") {
-        // إذا انتهت صلاحية التوكن، نقوم فقط بفك تشفيره بدون التحقق منه
-        decoded = jwt.decode(token);
-      } else {
-        return res.status(401).json({ message: "Invalid token" });
-      }
-    }
-
-    if (!decoded || !decoded.email) {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-
-    const email = decoded.email;
-
-    // console.log("Decoded email:", email);
-
-    // البحث عن المستخدم
-    const user = await userModel.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // تحديث حالة المستخدم إلى "offline" حتى لو كان التوكن منتهي الصلاحية
-    await userModel.findOneAndUpdate(
-      { email },
-      { token: null, status: "offline" },
-      { new: true }
-    );
-
-    res.status(200).json({ message: "Logout successful" });
-  } catch (error) {
-    console.error("Logout Error:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
 
 
  export const getAllUser = async(req,res,next) => {
@@ -311,7 +220,7 @@ export const addUser = async (req, res, next) => {
       lastName,
       email,
       password,
-      role,
+      role, // TODO :role || 'Admin', 
       phoneNumber,
   });
 
@@ -441,7 +350,7 @@ export const updateUser = async(req,res,next) => {
         next(new Error(`fail to upload${error.message}`, { cause: 500 }));
       }
      
-    }
+}
 
 
     export const deleteUser = async (req,res,next) => {
@@ -457,7 +366,7 @@ export const updateUser = async(req,res,next) => {
            }  catch (error) {
              next(new Error(`fail to upload ${error.message}`, { cause: 500 }));
            }
-    }
+}
 
 
     export const updateUserFromSuperAdmin = async(req,res,next) => {
@@ -493,7 +402,7 @@ export const updateUser = async(req,res,next) => {
       }  catch (error) {
         next(new Error(`fail to upload${error.message}`, { cause: 500 }));
       }
-    }
+}
 
 
     export const usersCount = async(req,res,next) => {
@@ -504,4 +413,194 @@ export const updateUser = async(req,res,next) => {
       } catch (error) {
         next(new Error(`fail to upload${error.message}`, { cause: 500 }));
       }
+}
+
+
+
+    export const sendEmailBinCode = async (req, res, next) => {
+      const { email } = req.body;
+      const verificationCode = crypto.randomInt(100000, 999999);
+      
+      const user = await userModel.findOne({email});
+      if(!user) return next(new Error('Email Not Found',{cause:404}));
+    
+      // Store the code and expiry in the user document
+      user.verificationCode = verificationCode;
+      user.codeExpiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+      await user.save();
+    
+      try {
+          await sendVerificationEmail(email, verificationCode);
+          res.status(200).json({ message: 'Verification code sent successfully' });
+      } catch (error) {
+          console.error('Error sending email:', error);
+          res.status(500).json({ error: 'Failed to send verification code' });
+      }
+    };
+    
+    export const resetPassword = async(req,res,next) => {
+      const {verificationCode, newPassword, email} = req.body;
+      
+      const user = await userModel.findOne({email});
+      if(!user) {
+          return res.status(400).json({message: "User not found"});
+      }
+    
+      if (!user.verificationCode || user.verificationCode !== parseInt(verificationCode)) {
+          return res.status(400).json({ error: 'Invalid verification code' });
+      }
+    
+      if (user.codeExpiresAt < Date.now()) {
+          return res.status(400).json({ error: 'Verification code expired' });
+      }
+    
+      user.password = newPassword;
+      user.verificationCode = null;
+      user.codeExpiresAt = null;
+    
+      const updatedUser = await user.save();
+      res.status(200).json({message: "Password reset successfully", updatedUser});
+    };
+
+    
+export const logout = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Token is required" });
     }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.SIGN_IN_TOKEN_SECRET);
+    } catch (error) {
+      if (error.name === "TokenExpiredError") {
+        // إذا انتهت صلاحية التوكن، نقوم فقط بفك تشفيره بدون التحقق منه
+        decoded = jwt.decode(token);
+      } else {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+    }
+
+    if (!decoded || !decoded.email) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const email = decoded.email;
+
+    // console.log("Decoded email:", email);
+
+    // البحث عن المستخدم
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // تحديث حالة المستخدم إلى "offline" حتى لو كان التوكن منتهي الصلاحية
+    await userModel.findOneAndUpdate(
+      { email },
+      { token: null, status: "offline" },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.error("Logout Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+export const getAllRafUsers = async (req, res, next) => {
+    try {
+    const users = await userModel.find({ role: "User" });
+    res.status(200).json({ users });
+  } catch (error) {
+    next(new Error(`Error fetching users: ${error.message}`, { cause: 500 }));
+  }
+};
+
+
+
+
+// ?  forget & reset
+// import { nanoid } from "nanoid"
+export const forgetmyPassword = async(req,res,next) => {
+    const {email} = req.body
+
+    const isExist = await userModel.findOne({email})
+    if(!isExist){
+        return res.status(400).json({message: "Email not found"})
+    }
+    console.log(process.env.SALT_ROUNDS);
+    
+    const code = nanoid()
+    const salt = pkg.genSaltSync(Number(process.env.SALT_ROUNDS) || 8); // Default to 8 if not in env
+
+    const hashcode = pkg.hashSync(code, salt) // ! process.env.SALT_ROUNDS
+    const token = generateToken({
+        payload:{
+            email,
+            sendCode:hashcode,
+        },
+        signature: process.env.RESET_TOKEN, // ! process.env.RESET_TOKEN
+        expiresIn: '1h',
+    })
+    const resetPasswordLink = `https://www.raf-advanced.sa/ar/auth/new-password?token=${token}`
+    const isEmailSent = sendEmailService({
+        to:email,
+        subject: "Reset Password",
+        message: emailTemplate({
+            link:resetPasswordLink,
+            linkData:"Click Here Reset Password",
+            subject: "Reset Password",
+        }),
+    })
+    if(!isEmailSent){
+        return res.status(400).json({message:"Email not found"})
+    }
+
+    const userupdete = await userModel.findOneAndUpdate(
+        {email},
+        {forgetCode:hashcode},
+        {new: true},
+    )
+    return res.status(200).json({message:"password changed",userupdete})
+}
+
+export const resetmyPassword = async(req,res,next) => {
+    const {token} = req.params
+    const decoded = verifyToken({token, signature: process.env.RESET_TOKEN}) // ! process.env.RESET_TOKEN
+    const user = await userModel.findOne({
+        email: decoded?.email,
+        fotgetCode: decoded?.sentCode
+    })
+
+    if(!user){
+        return res.status(400).json({message: "you are alreade reset it , try to login"})
+    }
+
+    const {newPassword} = req.body
+
+    user.password = newPassword,
+    user.forgetCode = null
+
+    const updatedUser = await user.save()
+    res.status(200).json({message: "Done",updatedUser})
+}
+
+
+export const getUserProfile = async(req,res,next)=>{
+  const {_id} = req.authUser
+  
+  
+      const user = await userModel.findById(_id)
+      console.log(user);
+      
+    if(!user){
+        return res.status(400).json({message: "User not found"})
+    }
+    res.status(200).json({message: "Done",user})
+}
