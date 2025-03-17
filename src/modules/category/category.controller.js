@@ -2,11 +2,12 @@ import { categoryModel } from "../../../database/models/category.model.js"
 import { customAlphabet } from 'nanoid'
 import imagekit, { destroyImage } from "../../utilities/imagekitConfigration.js"
 import { pagination } from "../../utilities/pagination.js"
+import { Unit } from "../../../database/models/unit.model.js"
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 5)
 
 export const createcategory = async (req, res, next) => {
    try {
-console.log(req.body);
+   console.log(req.body);
       // const unitData = JSON.parse(req.body)
       console.log(req.body);
       
@@ -35,8 +36,7 @@ console.log(req.body);
      }
  
      const customId = nanoid();
- console.log("Dddddddddddddddddd");
- 
+  
      const uploadResult = await imagekit.upload({
        file: req.file.buffer,
        fileName: req.file.originalname,
@@ -180,17 +180,46 @@ export const deleteCategory= async (req, res, next) => {
 
 
 export const getAllCategoryTitleImageAR = async(req,res,next) => {
- 
   const {page, size} = req.query
-  const {limit, skip} = pagination({page, size}) 
-  
-  const category = await categoryModel.find({lang:"ar"}).select(`title Image`).limit(limit).skip(skip)
-  
-  if(!category) return next(new Error("No category Founded",{cause:404}))
-  
-    const num = category.length
-    res.status(201).json({message:`category Number : ${num}`,category})
+  const {limit, skip} = pagination({page, size})
+
+  const categories = await categoryModel.find({lang:"ar"})
+    .select('title Image')
+    .limit(limit)
+    .skip(skip)
+
+  if(!categories) return next(new Error("No category Founded",{cause:404}))
+
+  // Calculate progress for each category
+  const categoriesWithProgress = await Promise.all(categories.map(async (category) => {
+    const categoryUnits = await Unit.find({lang:"ar", categoryId: category._id})
+    
+    const length = categoryUnits.length
+    const completed = categoryUnits.filter(unit => unit.status === 'مباع').length
+    const available = categoryUnits.filter(unit => unit.status === 'متاح للبيع').length
+    const reserved = categoryUnits.filter(unit => unit.status === 'محجوز').length
+    const unavailable = categoryUnits.filter(unit => unit.status === 'غير متاح').length
+
+    const progress = {
+      completedPercentage: length ? parseFloat(((completed / length) * 100).toFixed(2)) : 0,
+      availablePercentage: length ? parseFloat(((available / length) * 100).toFixed(2)) : 0,
+      reservedPercentage: length ? parseFloat(((reserved / length) * 100).toFixed(2)) : 0,
+      unavailablePercentage: length ? parseFloat(((unavailable / length) * 100).toFixed(2)) : 0,
+      total: length
+    }
+
+    return {
+      ...category.toObject(),
+      progress
+    }
+  }))
+
+  res.status(201).json({
+    message: `Category Number: ${categories.length}`,
+    categories: categoriesWithProgress
+  })
 }
+
 
 export const getAllCategoryTitleImageEN = async(req,res,next) => {
  

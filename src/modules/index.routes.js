@@ -20,7 +20,7 @@ export {
     reservationRouter,
     newsletterRouter,
     interstedRouter,
-    consultationRouter
+    consultationRouter,
  }
 
  
