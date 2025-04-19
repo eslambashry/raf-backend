@@ -25,13 +25,27 @@ export const signUp = async(req,res,next) => {
     }
 
     const token = generateToken({
-        payload:{
-            email,
-        },
-        signature: process.env.CONFIRMATION_EMAIL_TOKEN, 
-        expiresIn: '1h',
-     })
-     
+      payload:{
+          email,
+      },
+      signature: process.env.CONFIRMATION_EMAIL_TOKEN, // ! CONFIRMATION_EMAIL_TOKEN
+      expiresIn: '1h',
+   })
+      const confirmationLink = `${req.protocol}://${req.headers.host}/auth/confirm/${token}`
+      const isEmailSent = sendEmailService({
+          to:email,
+          subject:'Confirmation Email',
+           message: //`<a href=${confirmationLink}> Click here to confirm </a>`
+           emailTemplate({
+              link: confirmationLink,
+              linkData: 'Click here to confirm',
+              subject: 'Confirmation Email',
+           })
+           ,
+      }) 
+      if(!isEmailSent){
+          return res.status(400).json({message:'fail to sent confirmation email'})
+      }
     const user = new userModel({
         firstName,
         middleName,
@@ -45,6 +59,24 @@ export const signUp = async(req,res,next) => {
       res.status(201).json({message:'User Added successfully', saveUser})
     }  // ! for admin crate one account and will delete that api 
     
+
+    export const confirmEmail = async(req,res,next) => {
+      const {token} = req.params
+  
+      const decode = verifyToken({
+          token,
+          signature: process.env.CONFIRMATION_EMAIL_TOKEN, // ! process.env.CONFIRMATION_EMAIL_TOKEN
+      })
+      const user = await userModel.findOneAndUpdate(
+          {email: decode?.email, isConfirmed:false},
+          {isConfirmed: true},
+          {new:true},
+          )
+          if(!user){
+              return res.status(400).json({message:'already confirmed'})
+          }
+              return res.status(200).json({message:'confirmed done, now log in'})
+  }
 import { decode } from "punycode";
 import pkg from 'bcrypt'
 import { tempVerificationModel } from "../../../database/models/tempVerification.model.js";
@@ -92,7 +124,7 @@ export const login = async(req,res,next) => {
         
         {
             token,
-            status: 'online',
+            status: 'الان نشط',
             lastLogin: Date.now(),
         },
         {new: true},
@@ -102,58 +134,58 @@ export const login = async(req,res,next) => {
      res.status(200).json({message: 'Login Success', userUpdated})
 }
 
- export const forgetPassword = async(req,res,next) => {
+//  export const forgetPassword = async(req,res,next) => {
 
-  // console.log(process.env.SALT_ROUNDS);
-  // console.log(process.env.RESET_TOKEN);
-  const verificationCode = crypto.randomInt(100000, 999999);
+//   // console.log(process.env.SALT_ROUNDS);
+//   // console.log(process.env.RESET_TOKEN);
+//   const verificationCode = crypto.randomInt(100000, 999999);
 
-   verificationCodesAdd.set(email, {
-    code: verificationCode,
-    expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-  });
+//    verificationCodesAdd.set(email, {
+//     code: verificationCode,
+//     expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+//   });
 
-  console.log(verificationCodesAdd);
+//   console.log(verificationCodesAdd);
 
-    const {email} = req.body
+//     const {email} = req.body
 
 
-    const isExist = await userModel.findOne({email})
-    if(!isExist){
-        return res.status(400).json({message: "Email not found"})
-    }
+//     const isExist = await userModel.findOne({email})
+//     if(!isExist){
+//         return res.status(400).json({message: "Email not found"})
+//     }
 
-    const code = nanoid()
-    const hashcode = pkg.hashSync(code,process.env.SALT_ROUNDS) // ! process.env.SALT_ROUNDS
-    const token = generateToken({
-        payload:{
-            email,
-            sendCode:hashcode,
-        },
-        signature: process.env.RESET_TOKEN, // ! process.env.RESET_TOKEN
-        expiresIn: '1h',
-    })
-    const resetPasswordLink = `http://localhost:3000/auth/reset/${token}`
-    const isEmailSent = sendEmailService({
-        to:email,
-        subject: "Reset Password",
-        message: emailTemplate({
-            link:resetPasswordLink,
-            linkData:"Click Here Reset Password",
-            subject: "Reset Password",
-        }),
-    })
-    if(!isEmailSent){
-        return res.status(400).json({message:"Email not found"})
-    }
+//     const code = nanoid()
+//     const hashcode = pkg.hashSync(code,process.env.SALT_ROUNDS) // ! process.env.SALT_ROUNDS
+//     const token = generateToken({
+//         payload:{
+//             email,
+//             sendCode:hashcode,
+//         },
+//         signature: process.env.RESET_TOKEN, // ! process.env.RESET_TOKEN
+//         expiresIn: '1h',
+//     })
+//     const resetPasswordLink = `http://localhost:3000/auth/reset/${token}`
+//     const isEmailSent = sendEmailService({
+//         to:email,
+//         subject: "Reset Password",
+//         message: emailTemplate({
+//             link:resetPasswordLink,
+//             linkData:"Click Here Reset Password",
+//             subject: "Reset Password",
+//         }),
+//     })
+//     if(!isEmailSent){
+//         return res.status(400).json({message:"Email not found"})
+//     }
 
-    const userupdete = await userModel.findOneAndUpdate(
-        {email},
-        {forgetCode:hashcode},
-        {new: true},
-    )
-    return res.status(200).json({message:"password changed",userupdete})
-}
+//     const userupdete = await userModel.findOneAndUpdate(
+//         {email},
+//         {forgetCode:hashcode},
+//         {new: true},
+//     )
+//     return res.status(200).json({message:"password changed",userupdete})
+// }
 
 
  export const getAllUser = async(req,res,next) => {
@@ -497,10 +529,10 @@ export const logout = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // تحديث حالة المستخدم إلى "offline" حتى لو كان التوكن منتهي الصلاحية
+    // تحديث حالة المستخدم إلى "غير نشط" حتى لو كان التوكن منتهي الصلاحية
     await userModel.findOneAndUpdate(
       { email },
-      { token: null, status: "offline" },
+      { token: null, status: "غير نشط" },
       { new: true }
     );
 

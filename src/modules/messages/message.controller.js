@@ -8,8 +8,9 @@ export const createMessage = async(req,res,next) => {
         senderName,
         phone,
         senderEmail,
-        messageContent
     } = req.body
+    
+    const messageContent = "new message"
 
     const messageObject = {
         senderName,

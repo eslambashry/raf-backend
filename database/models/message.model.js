@@ -15,7 +15,7 @@ const messageSchema = mongoose.Schema({
     },
     messageContent:{
         type: String,
-        required: true
+        // required: true
     }
 
 },{timestamps:true})

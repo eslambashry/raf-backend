@@ -49,8 +49,8 @@ const userSchema = new Schema({
 
     status:{
         type:String,
-        default:'offline',
-        enum:['offline','online'],
+        default:'غير نشط',
+        enum:['الان نشط','غير نشط'],
     },
     lastLogin:{
         type:Date,
