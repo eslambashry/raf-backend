@@ -8,8 +8,9 @@ export const createMessage = async(req,res,next) => {
         senderName,
         phone,
         senderEmail,
-        messageContent
     } = req.body
+    
+    const messageContent = "new message"
 
     const messageObject = {
         senderName,
@@ -20,7 +21,7 @@ export const createMessage = async(req,res,next) => {
 
     const messageData = await Message.create(messageObject)
 
-    if(!messageData) return next(new Error("message didn't sent",{cause:403}))
+    if(!messageData) return next(new Error("message didn't sent",{cause:400}))
 
     res.status(201).json({message:"sent sucessfully",messageData})
 }
