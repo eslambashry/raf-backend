@@ -20,7 +20,7 @@ router.get('/users',AuthCon.getAllUser)
 
    router.get('/users',AuthCon.getAllUser) 
    router.get('/getOne',AuthCon.getOneUser) 
-   router.post('/forget',AuthCon.forgetPassword)
+   // router.post('/forget',AuthCon.forgetPassword)
   
    router.post("/sendEmail",AuthCon.sendEmailBinCode)
    router.post('/reset',AuthCon.resetPassword)
@@ -45,6 +45,6 @@ router.get('/users',AuthCon.getAllUser)
    router.get('/wishlist',isAuth(addUsersEndpoints.ADD_WHSHLIST),wishCon.getWithListUsers)
    router.patch('/wishlist',isAuth(addUsersEndpoints.DELETE_WHSHLIST),wishCon.deleteWithListUsers)
    // ^ ========================== Wishlist ================================================
-
-export default router
+   router.get('/confirm/:token',AuthCon.confirmEmail)
+   export default router
 
