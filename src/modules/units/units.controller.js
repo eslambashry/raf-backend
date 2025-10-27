@@ -50,9 +50,9 @@ const addUnit = async (req, res, next) => {
     // console.log(timeInMinutes);
      
 
-    if (!coordinates.latitude || !coordinates.longitude) {
-      return next(new Error("Please provide both latitude and longitude for the unit's GPS coordinates.", { cause: 400 }));
-    }
+    // if (!coordinates.latitude || !coordinates.longitude) {
+    //   return next(new Error("Please provide both latitude and longitude for the unit's GPS coordinates.", { cause: 400 }));
+    // }
 
 
      
