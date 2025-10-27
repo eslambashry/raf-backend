@@ -224,7 +224,7 @@ const deleteUnit = async (req, res, next) => {
       }
     }
     await interstedModel.deleteMany({ unitId });
-    await userModel.find({ wishlist: unitId }).updateMany({ $pull: { wishlist: unitId } });
+   // await userModel.find({ wishlist: unitId }).updateMany({ $pull: { wishlist: unitId } });
        await Unit.findByIdAndDelete(req.params.id);
 
     res.status(200).json({ message: "Unit deleted successfully"});
