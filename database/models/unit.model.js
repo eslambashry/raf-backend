@@ -3,11 +3,11 @@ import mongoose, { Schema } from "mongoose";
 const unitSchema = mongoose.Schema({
     title:{
         type: String,
-        required: true
+        // required: true
     },
     type: {
         type: String,
-        required: true,
+        // required: true,
         default: "شقة",
         enum: [
             "فيلا", "شقة", "دوبلكس", "مكتب", "محل تجاري", "مستودع",
@@ -19,63 +19,63 @@ const unitSchema = mongoose.Schema({
     categoryId:{
         type: Schema.Types.ObjectId,
         ref: 'category',
-        required:true
+        // required:true
     },
     area:{
         type: Number,
-        required: true
+        // required: true
     },
     price:{
         type: Number,
-        required: true
+        // required: true
     },
     description:{
         type: String,
-        required: true
+        // required: true
     },
     rooms:{
         type: Number,
-        required: true
+        // required: true
     },
     elevators:{
         type:Number,
-        required:true
+        // required:true
     },
     images: [
         {
           secure_url: {
             type: String,
-            required: true,
+            // required: true,
           },
           public_id: {
             type: String,
-            required: true,
+            // required: true,
           },
         },
       ],
     bathrooms:{
         type: Number,
-        required: true
+        // required: true
     },
     parking:{
         type:Number,
-        required:true
+        // required:true
     },
     guard:{
         type:Number,
-        required:true
+        // required:true
     },
     livingrooms:{
         type: Number,
-        required: true
+        // required: true
     },
     waterTank:{
         type: Number,
-        required: true
+        // required: true
     },
     maidRoom:{
         type: Number,
-        required: true
+        // required: true
     },
     status: {
         type: String,
@@ -87,22 +87,26 @@ const unitSchema = mongoose.Schema({
     },
     cameras:{
         type:Number,
-        required:true
+        // required:true
     },
     coordinates: { // ^ for GPS
         latitude: {
             type: Number,
-            required: true
+            // required: true
         },                          
         longitude: {
             type: Number,
-            required: true
+            // required: true
         }
     },
     nearbyPlaces: [
         {
-          place: { type: String, required: true },  
-          timeInMinutes: { type: Number, required: true }
+          place: { type: String, 
+            // required: true
+         },  
+          timeInMinutes: { type: Number,
+            //  required: true
+             }
         }
       ],
     customId:String,
@@ -112,17 +116,17 @@ const unitSchema = mongoose.Schema({
     },
     location:{
         type: String,
-        required: true
+        // required: true
     },
     lang:{
         type:String,
-        required:true,
+        // required:true,
         default:"ar",
         enum:["ar","en"]
     },
     floor:{
         type: Number,
-        required: true
+        // required: true
     },
 },{timestamps:true})
 
